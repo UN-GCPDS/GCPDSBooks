@@ -1,0 +1,1577 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Autoencoders VIII: Variantes de Gradiente Descendiente &#8212; GCPDS</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Autoencoders/Gradiente3';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="GNU Radio" href="../Radio/GNU.html" />
+    <link rel="prev" title="Autoencoders VI: Gradiente descendiente" href="Gradiente.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/blob.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/blob.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Bienvenido a la Wiki del GCPDS Unal Manizales
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="intro.html">Autoencoders</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Convoluciones.html">Autoencoder I: ¿Convoluciones?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Convoluciones2D.html">Autoencoders II: Convolución 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConvolucionesSe%C3%B1ales.html">Autoencoders III: Señales</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Activation.html">Autoencoders IV: Funciones de activación</a></li>
+
+
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="Pedal.html">Autoencoders V: Red Neuronal desde 0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Gradiente.html">Autoencoders VI: Gradiente descendiente</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Autoencoders VIII: Variantes de Gradiente Descendiente</a></li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Radio/GNU.html">GNU Radio</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Radio/rff.html">Random Fourier features</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/UN-GCPDS/GCPDSBooks" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/UN-GCPDS/GCPDSBooks/issues/new?title=Issue%20on%20page%20%2FAutoencoders/Gradiente3.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/Autoencoders/Gradiente3.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Autoencoders VIII: Variantes de Gradiente Descendiente</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Autoencoders VIII: Variantes de Gradiente Descendiente</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#import-the-libraries">Import the Libraries</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-the-dataset">Prepare the dataset</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-function">Loss Function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#gradients-of-loss-function">Gradients of Loss Function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#update-rule">Update Rule</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#minibatch-gradient-descent">MiniBatch Gradient Descent</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-descent-with-momentum">Gradient descent with Momentum</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nesterov-accelerated-gradients">Nesterov Accelerated Gradients</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#set-learning-rate-adaptively-using-adagrad">Set Learning rate adaptively using AdaGrad</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#do-away-with-learning-rate-using-adadelta">Do away with Learning rate using Adadelta</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#overcoming-limitations-of-adagrad-using-rmsprop">Overcoming limitations of AdaGrad using RMSProp</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adam-adaptive-moment-estimation">Adam - Adaptive Moment Estimation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adamax-adam-based-on-infinity-norm">Adamax - Adam based on infinity norm</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adaptive-moment-estimation-with-amsgrad">Adaptive Moment Estimation with AMSGrad</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nadam-adding-nag-to-adam">Nadam - Adding NAG to ADAM</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="autoencoders-viii-variantes-de-gradiente-descendiente">
+<h1>Autoencoders VIII: Variantes de Gradiente Descendiente<a class="headerlink" href="#autoencoders-viii-variantes-de-gradiente-descendiente" title="Permalink to this heading">#</a></h1>
+<p>Now that we have understood several variants of gradient descent algorithm. In this section, we will understand how can we use them in finding the optimal parameters of simple linear regression.</p>
+<p>The equation of a simple linear regression can be expressed as:</p>
+<div class="math notranslate nohighlight">
+\[ \hat{y} = mx + b -- (1) \]</div>
+<p>Thus, we have two parameters <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(b\)</span>. We will see how can we use gradient descent and find the optimal values for these two parameters <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(b\)</span>.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="import-the-libraries">
+<h1>Import the Libraries<a class="headerlink" href="#import-the-libraries" title="Permalink to this heading">#</a></h1>
+<p>Import the required libraries:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="prepare-the-dataset">
+<h1>Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Permalink to this heading">#</a></h1>
+<p>We generate some random data points with 500 rows and 2 columns (x and y) and use for training:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>As you can see our data has two columns:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([-0.09431228,  0.46639894])
+</pre></div>
+</div>
+</div>
+</div>
+<p>First column indicates the <span class="math notranslate nohighlight">\(x\)</span> value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>-0.09431228137409302
+</pre></div>
+</div>
+</div>
+</div>
+<p>Second column indicates the <span class="math notranslate nohighlight">\(y\)</span> value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.4663989363336799
+</pre></div>
+</div>
+</div>
+</div>
+<p>We know that equation of a simple linear regression is expressed as:</p>
+<div class="math notranslate nohighlight">
+\[ \hat{y} = mx + b  \]</div>
+<p>Thus, we have two parameters <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(b\)</span>.  We store both of these parameter <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(b\)</span> in an array called theta. First, we initialize theta with zeros as shown below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0., 0.])
+</pre></div>
+</div>
+</div>
+</div>
+<p>theta[0] represents the value of <span class="math notranslate nohighlight">\(m\)</span> and theta[1] represents the value of <span class="math notranslate nohighlight">\(b\)</span></p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="loss-function">
+<h1>Loss Function<a class="headerlink" href="#loss-function" title="Permalink to this heading">#</a></h1>
+<p>Mean Squared Error (MSE) of Regression is given as:</p>
+<div class="math notranslate nohighlight">
+\[J=\frac{1}{N} \sum_{i=1}^{N}(y-\hat{y})^{2} -- (2) \]</div>
+<p>Where <span class="math notranslate nohighlight">\(N\)</span> is the number of training samples, <span class="math notranslate nohighlight">\(y\)</span> is the actual value and <span class="math notranslate nohighlight">\(\hat{y}\)</span> is the predicted value.</p>
+<p>The above loss function can be implemented as:</p>
+<p>We feed the data and the model parameter theta to the loss function which returns the MSE. Remember, data[,0] has <span class="math notranslate nohighlight">\(x\)</span> value and data[,1] has <span class="math notranslate nohighlight">\(y\)</span> value. Similarly, theta [0] has a value of <span class="math notranslate nohighlight">\(m\)</span> and theta[1] has a value of <span class="math notranslate nohighlight">\(b\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">):</span>
+    
+    <span class="c1">#get m and b</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1">#on each data point </span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+        
+        <span class="c1">#get x and y</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1">#predict the value of y </span>
+        <span class="n">y_hat</span> <span class="o">=</span> <span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+        
+        <span class="c1">#compute loss as given in quation (2)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_hat</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        
+    <span class="c1">#mean sqaured loss</span>
+    <span class="n">mean_squared_loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        
+    <span class="k">return</span> <span class="n">mean_squared_loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>When we feed our randomly initialized data and model parameter theta, the loss_function returns the mean squared loss as shown below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.9741068306306074
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, we need to minimize this loss. In order to minimize the loss, we need to calculate the gradient of the loss function <span class="math notranslate nohighlight">\(J\)</span> with respect to the model parameters <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(b\)</span> and update the parameter according to the parameter update rule. So, first, we will calculate the gradient of the loss function.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="gradients-of-loss-function">
+<h1>Gradients of Loss Function<a class="headerlink" href="#gradients-of-loss-function" title="Permalink to this heading">#</a></h1>
+<p>Gradients of loss function <span class="math notranslate nohighlight">\(J\)</span> with respect to parameter <span class="math notranslate nohighlight">\(m\)</span> is given as:</p>
+<div class="math notranslate nohighlight">
+\[ \frac{d J}{d m}=\frac{2}{N} \sum_{i=1}^{N}-x_{i}\left(y_{i}-\left(m x_{i}+b\right)\right) -- (3)\]</div>
+<p>Gradients of loss function <span class="math notranslate nohighlight">\(J\)</span> with respect to parameter <span class="math notranslate nohighlight">\(b\)</span> is given as:
+$<span class="math notranslate nohighlight">\( \frac{d J}{d b}=\frac{2}{N} \sum_{i=1}^{N}-\left(y_{i}-\left(m x_{i}+b\right)\right) -- (4)\)</span>$</p>
+<p>We define a function called compute_gradients which takes the data and parameter theta as an input and returns the computed gradients:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+
+    <span class="n">gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1">#total number of data points</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+    
+    <span class="n">m</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">theta</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1">#for each data point</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+           
+        <span class="c1">#gradient of loss function with respect to m as given in (3)</span>
+        <span class="n">gradients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="p">((</span> <span class="n">m</span><span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+        
+        <span class="c1">#gradient of loss funcction with respect to b as given in (4)</span>
+        <span class="n">gradients</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="p">((</span><span class="n">theta</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span><span class="p">))</span>
+    
+    <span class="c1">#add epsilon to avoid division by zero error</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span> 
+    <span class="n">gradients</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">gradients</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gradients</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.00014683, 0.00010044])
+</pre></div>
+</div>
+</div>
+</div>
+<p>Thus, when we feed the randomly initialized data and model parameter theta, the compute_gradients function returns the gradients of <span class="math notranslate nohighlight">\(m\)</span> i.e <span class="math notranslate nohighlight">\(\frac{d J}{d m}\)</span> and gradients of <span class="math notranslate nohighlight">\(b\)</span> i.e  <span class="math notranslate nohighlight">\(\frac{d J}{d b}\)</span>.</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="update-rule">
+<h1>Update Rule<a class="headerlink" href="#update-rule" title="Permalink to this heading">#</a></h1>
+<p>After computing gradients we need to update our model parameter according to our update rule as given below:</p>
+<p>Update m:
+$<span class="math notranslate nohighlight">\(m=m-\alpha \frac{d J}{d m} --(5) \)</span>$</p>
+<p>Update b:
+$<span class="math notranslate nohighlight">\( b=b-\alpha \frac{d J}{d b} -- (6) \)</span>$</p>
+<p>Since we stored <span class="math notranslate nohighlight">\(m\)</span> in theta[0] and <span class="math notranslate nohighlight">\(b\)</span> in theta[1], we can write our update equation as:</p>
+<div class="math notranslate nohighlight">
+\[\theta = \theta - \alpha \frac{dJ}{d\theta} -- (7)\]</div>
+<p>As we learned in the previous section, updating gradients for just one time will not lead us to the convergence i.e minimum of the cost function, so we need to compute gradients and the update the model parameter for several iterations:</p>
+<p>Set the number of iterations:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">50000</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Define the learning rate</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Define a list called loss for storing the loss on every iterations:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>On each iteration, calculate gradients and update the gradients according to our parameter update rule (7):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+    
+    <span class="c1">#compute gradients</span>
+    <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    
+    <span class="c1">#update parameter</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span><span class="o">*</span><span class="n">gradients</span><span class="p">)</span>
+    
+    <span class="c1">#store the loss</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The below plot shows how the loss(cost) decreases over the training iterations:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Gradient Descent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Gradient Descent&#39;)
+</pre></div>
+</div>
+<img alt="../_images/9aecbc333d93253a7940a574dd2ae54953f2e1598ccaa5feb27610d3498e2ba9.png" src="../_images/9aecbc333d93253a7940a574dd2ae54953f2e1598ccaa5feb27610d3498e2ba9.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="minibatch-gradient-descent">
+<h1>MiniBatch Gradient Descent<a class="headerlink" href="#minibatch-gradient-descent" title="Permalink to this heading">#</a></h1>
+<p>We just learned how gradient descent works. In gradient descent, to perform a single
+parameter update we iterate through all the data points in our training set. Updating the parameters of the model only after iterating through all the data points in the training set makes the gradient descent very slow and it will increase the training time
+especially when we have a large dataset.</p>
+<p>So, we use minibatch gradient descent, in minibatch gradient descent, we update the parameters after iterating some batch of data points. Let us say the batch size is 50
+which means that we update the parameter of the model after iterating through 50 data
+points instead of updating the parameter after iterating through each individual data point.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">minibatch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">minibatch_ratio</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">minibatch_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">minibatch_ratio</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)),</span> <span class="n">minibatch_size</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        
+        <span class="c1">#sample batch of data</span>
+        <span class="n">sample_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">sample_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:]</span>
+        
+        <span class="c1">#compute gradients</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">sample_data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+       
+        <span class="c1">#update parameters</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">*</span> <span class="n">grad</span><span class="p">)</span>
+        
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+            
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Perform minibatch gradient descent and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">minibatch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Mini-Batch Gradient Descent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Mini-Batch Gradient Descent&#39;)
+</pre></div>
+</div>
+<img alt="../_images/0fb7b40426f77d53e80ea2714adae67222414b906e743122f04f70102c0ff332.png" src="../_images/0fb7b40426f77d53e80ea2714adae67222414b906e743122f04f70102c0ff332.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="gradient-descent-with-momentum">
+<h1>Gradient descent with Momentum<a class="headerlink" href="#gradient-descent-with-momentum" title="Permalink to this heading">#</a></h1>
+<p>Refer the book for the detailed explanation:</p>
+<p>We learned how momentum helps us to reduce oscillations in the gradient steps and attain the convergence faster. The update equation of momentum is given as:</p>
+<div class="math notranslate nohighlight">
+\[v_t = \gamma v_{t-1} + \eta \nabla_\theta J( \theta) -- (8) \]</div>
+<p>Update theta by:
+$<span class="math notranslate nohighlight">\({\theta = \theta - v_t } -- (9) \)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">Momentum</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#Initialize vt with zeros:</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta </span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#Update vt by equation (8)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">vt</span> <span class="o">+</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#update model parameter theta by equation (9)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">vt</span>
+    
+        <span class="c1">#store loss of every iteration</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+        
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Perform gradient descent with mometum and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">Momentum</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Mometum&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Mometum&#39;)
+</pre></div>
+</div>
+<img alt="../_images/4d8bdfcf8a5881778768af88a0d0685b32f6bac99055e37534beee7834f70a76.png" src="../_images/4d8bdfcf8a5881778768af88a0d0685b32f6bac99055e37534beee7834f70a76.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nesterov-accelerated-gradients">
+<h1>Nesterov Accelerated Gradients<a class="headerlink" href="#nesterov-accelerated-gradients" title="Permalink to this heading">#</a></h1>
+<p>Refer the NAG section in the book for the detailed explanation.</p>
+<p>The update equation of NAG is given as:</p>
+<div class="math notranslate nohighlight">
+\[v_t = \gamma v_{t-1} + \eta \nabla_\theta J( \theta - \gamma v_{t-1} ) -- (10) \]</div>
+<p>Update theta by:
+$<span class="math notranslate nohighlight">\({\theta = \theta - v_t } -- (11) \)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">NAG</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#Initialize vt with zeros:</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+       
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respet to (theta-gamma*vt-1)</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">vt</span><span class="p">)</span>
+        
+        <span class="c1">#update vt by equation (10)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">vt</span> <span class="o">+</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#update model parameter theta by equation (11)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="n">vt</span>
+        
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+        
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Compute and update gradients using NAG:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">NAG</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Nesterov Accelerated Gradients&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/95952421a9c477d8dde26b25129528824a4eec3e735838edd9cc6f928b6db43d.png" src="../_images/95952421a9c477d8dde26b25129528824a4eec3e735838edd9cc6f928b6db43d.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="set-learning-rate-adaptively-using-adagrad">
+<h1>Set Learning rate adaptively using AdaGrad<a class="headerlink" href="#set-learning-rate-adaptively-using-adagrad" title="Permalink to this heading">#</a></h1>
+<p>In a nutshell, in AdaGrad, we set the learning rate to a small value when past gradients
+value is high and to a high value when the past gradient value is less. So our learning rate
+value changes according to the past gradients updates of the parameter.(Refer the section AdaGrad in the book for a detailed explanation)</p>
+<p>The update equation of Adagrad is given as:</p>
+<div class="math notranslate nohighlight">
+\[{\theta_{t}^i = \theta_{t-1}^i - \dfrac{\eta}{\sqrt{ \sum_{\tau=1}^t (g_{\tau}^i)^2   + \epsilon}} \cdot g_{t}^i } -- (12) \]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">AdaGrad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize gradients_sum for storing sum of gradients</span>
+    <span class="n">gradients_sum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    
+        <span class="c1">#compute square of sum of gradients</span>
+        <span class="n">gradients_sum</span> <span class="o">+=</span> <span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span>
+    
+        <span class="c1">#update gradients</span>
+        <span class="n">gradient_update</span> <span class="o">=</span> <span class="n">gradients</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">gradients_sum</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span>
+    
+        <span class="c1">#update model parameter according to equation (12)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">*</span> <span class="n">gradient_update</span><span class="p">)</span>
+
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using AdaGrad and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">AdaGrad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the Loss</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;AMSGrad&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/242ab4d5ff666a45e81bc165d73d583feeae665f7ed8710d91713dbf243ff7cc.png" src="../_images/242ab4d5ff666a45e81bc165d73d583feeae665f7ed8710d91713dbf243ff7cc.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="do-away-with-learning-rate-using-adadelta">
+<h1>Do away with Learning rate using Adadelta<a class="headerlink" href="#do-away-with-learning-rate-using-adadelta" title="Permalink to this heading">#</a></h1>
+<p>With AdaDelta we completely get rid of learning rate. (Refer the section AdaDelta in the book for full explanation)</p>
+<p>The update equation of AdaDelta is expressed as:</p>
+<p>Running average of gradients:
+$<span class="math notranslate nohighlight">\(E\left[g^{2}\right]_{t}=\gamma E\left[g^{2}\right]_{t-1}+(1-\gamma) g_{t}^{2} -- (13) \)</span>$</p>
+<p>Compute delta:
+$<span class="math notranslate nohighlight">\( \nabla \theta_{t}=-\frac{R M S[\Delta \theta]_{t-1}}{R M S\left[g_{t}\right]} \cdot g_{t}^{i} -- (14) \)</span>$</p>
+<p>Running averge of parameter update:
+$<span class="math notranslate nohighlight">\( E\left[\Delta \theta^{2}\right]_{t}=\gamma E\left[\Delta \theta^{2}\right]_{t-1}+(1-\gamma) \Delta \theta_{t}^{2} -- (15) \)</span>$</p>
+<p>Update theta:
+$<span class="math notranslate nohighlight">\( \theta_{t}^{i}=\theta_{t-1}^{i}+\nabla \theta_{t} -- (16) \)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">AdaDelta</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">500</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize running average of gradients</span>
+    <span class="n">E_grad2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize running average of parameter update</span>
+    <span class="n">E_delta_theta2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients of loss with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#compute running average of gradients as given in equation (13)</span>
+        <span class="n">E_grad2</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">E_grad2</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="c1">#compute delta_theta as given in equation (14)</span>
+        <span class="n">delta_theta</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E_delta_theta2</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E_grad2</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#compute running average of parameter updates as given in equation (15)</span>
+        <span class="n">E_delta_theta2</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">E_delta_theta2</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">delta_theta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="c1">#update the model parameter, theta as given in equation (16)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">+</span> <span class="n">delta_theta</span>
+        
+        <span class="c1">#store  the loss</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using AdaDelta and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">AdaDelta</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;AdaDelta&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/b6d428300702b0cf28fd5b5a202bf1b64d844d2c44048ade39a295c6c7e37e08.png" src="../_images/b6d428300702b0cf28fd5b5a202bf1b64d844d2c44048ade39a295c6c7e37e08.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="overcoming-limitations-of-adagrad-using-rmsprop">
+<h1>Overcoming limitations of AdaGrad using RMSProp<a class="headerlink" href="#overcoming-limitations-of-adagrad-using-rmsprop" title="Permalink to this heading">#</a></h1>
+<p>We learned that in AdaGrad learning rate would become very small when the sum of gradients is high. So, we RMSProp to overcome the limitations of RMSProp. (Refer section RMSProp in the book for full explanation).</p>
+<p>The update equation of RMSProp is given as:</p>
+<p>Running average of gradients:
+$<span class="math notranslate nohighlight">\(E\left[g^{2}\right]_{t}=\gamma E\left[g^{2}\right]_{t-1}+(1-\gamma) g_{t}^{2} -- (17) \)</span>$</p>
+<p>Update theta:
+$<span class="math notranslate nohighlight">\(\theta_{t}^{i}=\theta_{t-1}^{i}-\frac{\eta}{\sqrt{E\left[g^{2}\right]_{t}+\epsilon}} \cdot g_{t}^{i} -- (18)\)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">RMSProp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">gamma</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span> 
+    
+    <span class="n">loss</span><span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize running average of gradients</span>
+    <span class="n">E_grad2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#compute running average of gradients as given in equation (17)</span>
+        <span class="n">E_grad2</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">E_grad2</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        
+        <span class="c1">#update model parameter as given in equation (18)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">E_grad2</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">gradients</span><span class="p">)</span>
+        
+        <span class="c1">#store the loss</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using RMSProp and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">RMSProp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;RMSProp&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/37e5658303d2576b66d6ad7f0b83142c2adf4717007a5ef8d063e8c300addbfa.png" src="../_images/37e5658303d2576b66d6ad7f0b83142c2adf4717007a5ef8d063e8c300addbfa.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="adam-adaptive-moment-estimation">
+<h1>Adam - Adaptive Moment Estimation<a class="headerlink" href="#adam-adaptive-moment-estimation" title="Permalink to this heading">#</a></h1>
+<p>Check the section Adam in the book for the detailed explanation. The update equation of Adam is given as:</p>
+<p>First moment estimate:
+$<span class="math notranslate nohighlight">\(m_{t}=\beta_{1} m_{t-1}+\left(1-\beta_{1}\right) g_{t} -- (19) \)</span>$</p>
+<p>Second moment estimate:
+$<span class="math notranslate nohighlight">\(v_{t}=\beta_{2} v_{t-1}+\left(1-\beta_{2}\right) g_{t}^{2} --(20)\)</span>$</p>
+<p>Bias-corrected mt:
+$<span class="math notranslate nohighlight">\(\hat{m}_{t}=\frac{m_{t}}{1-\beta_{1}^{t}} --(21) \)</span>$</p>
+<p>Bias-corrected vt:
+$<span class="math notranslate nohighlight">\(\hat{v}_{t}=\frac{v_{t}}{1-\beta_{2}^{t}} --(22) \)</span>$</p>
+<p>Update theta:</p>
+<div class="math notranslate nohighlight">
+\[\theta_{t}=\theta_{t-1}-\frac{\eta}{\sqrt{\hat{v}_{t}}+\epsilon} \hat{m}_{t} -- (23) \]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">Adam</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+   
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize first moment mt</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize second moment vt</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#update first moment mt as given in equation (19)</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">mt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#update second moment vt as given in equation (20)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="n">vt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span>
+        
+        <span class="c1">#compute bias-corected estimate of mt (21)</span>
+        <span class="n">mt_hat</span> <span class="o">=</span> <span class="n">mt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span> <span class="o">**</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1">#compute bias-corrected estimate of vt (22)</span>
+        <span class="n">vt_hat</span> <span class="o">=</span> <span class="n">vt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta2</span> <span class="o">**</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1">#update the model parameter as given in (23)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vt_hat</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">mt_hat</span>
+      
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using Adam and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">RMSProp</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Adam&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/c2d4716b394406f26996ea492d77ae2c721879b2381fa49498107bd162a2a04b.png" src="../_images/c2d4716b394406f26996ea492d77ae2c721879b2381fa49498107bd162a2a04b.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="adamax-adam-based-on-infinity-norm">
+<h1>Adamax - Adam based on infinity norm<a class="headerlink" href="#adamax-adam-based-on-infinity-norm" title="Permalink to this heading">#</a></h1>
+<p>Check the section Adamax in the book for the detailed explanation. The update equation of Adamax is given as:</p>
+<p>First moment estimate:
+$<span class="math notranslate nohighlight">\(m_{t}=\beta_{1} m_{t-1}+\left(1-\beta_{1}\right) g_{t} -- (24) \)</span>$</p>
+<p>Second moment estimate:
+$<span class="math notranslate nohighlight">\(v_{t}=\max \left(\beta_{2} \cdot v_{t-1},\left|g_{t}\right|\right) -- (25) \)</span>$</p>
+<p>Bias-corrected mt:
+$<span class="math notranslate nohighlight">\(\hat{m}_{t}=\frac{m_{t}}{1-\beta_{1}^{t}} -- (26) \)</span>$</p>
+<p>Update theta:</p>
+<div class="math notranslate nohighlight">
+\[\theta_{t}=\theta_{t-1}-\frac{\eta}{v_{t}} \hat{m}_{t} -- (27) \]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">Adamax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">500</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize first moment mt</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize second moment vt</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#compute first moment mt as given in equation (24)</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">mt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#compute second moment vt as given in equation (25)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">beta2</span> <span class="o">*</span> <span class="n">vt</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">gradients</span><span class="p">))</span>
+        
+        <span class="c1">#compute bias-corrected estimate of mt as given in equation (26)</span>
+        <span class="n">mt_hat</span> <span class="o">=</span> <span class="n">mt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span> <span class="o">**</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1">#update theta as give in equation (27)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">((</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">vt</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">mt_hat</span><span class="p">)</span>
+        
+        <span class="c1">#store the loss</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using Adamax and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">Adamax</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Adamax&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/bcbfe06ff3094aa64ffe16d6ac4b1fcf458d4975bc1ac967dc54a0ce60b436ff.png" src="../_images/bcbfe06ff3094aa64ffe16d6ac4b1fcf458d4975bc1ac967dc54a0ce60b436ff.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="adaptive-moment-estimation-with-amsgrad">
+<h1>Adaptive Moment Estimation with AMSGrad<a class="headerlink" href="#adaptive-moment-estimation-with-amsgrad" title="Permalink to this heading">#</a></h1>
+<p>Refer the section AMSGrad in the book for the detailed explanation. The update equation of AMSGrad is given as:</p>
+<p>First moment estimate:
+$<span class="math notranslate nohighlight">\(m_{t}=\beta_{1} m_{t-1}+\left(1-\beta_{1}\right) g_{t} -- (28) \)</span>$</p>
+<p>Second moment estimate:
+$<span class="math notranslate nohighlight">\(v_{t}=\beta_{2} v_{t-1}+\left(1-\beta_{2}\right) g_{t}^{2} --(29) \)</span>$</p>
+<p>Updated second moment estimate:
+$<span class="math notranslate nohighlight">\(\hat{v}_{t}=\max \left(\hat{v}_{t-1}, v_{t}\right) -- (30) \)</span>$</p>
+<p>Bias-corrected mt:
+$<span class="math notranslate nohighlight">\(\hat{m}_{t}=\frac{m t}{1-\beta_{1}^{t}} -- (31) \)</span>$</p>
+<p>Update theta:
+$<span class="math notranslate nohighlight">\(\theta_{t}=\theta_{t-1}-\frac{\eta}{\sqrt{\hat{v}_{t}}+\epsilon} \hat{m}_{t} -- (32) \)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">AMSGrad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+    
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize first moment mt</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize second moment vt</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize vt_hat</span>
+    <span class="n">vt_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#compute first moment as given in equation (28)</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">mt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#compute second moment as given in equation (29)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="n">vt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span>
+        
+        <span class="c1">#compute vt_hat as given in equation (30)</span>
+        <span class="n">vt_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">vt_hat</span><span class="p">,</span><span class="n">vt</span><span class="p">)</span>
+        
+        <span class="c1">#compute bias-corrected estimate of mt as shown in equation (31)</span>
+        <span class="n">mt_hat</span> <span class="o">=</span> <span class="n">mt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span> <span class="o">**</span> <span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1">#update model parameter theta as given in (32)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vt_hat</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">mt_hat</span>
+
+        <span class="c1">#store loss</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using AMSGrad and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">AMSGrad</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;AMSGrad&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/dc076081235677ddc4b63c7e34e8eefae3eb7405a7f050dfe0be92df1f0e7ce2.png" src="../_images/dc076081235677ddc4b63c7e34e8eefae3eb7405a7f050dfe0be92df1f0e7ce2.png" />
+</div>
+</div>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="nadam-adding-nag-to-adam">
+<h1>Nadam - Adding NAG to ADAM<a class="headerlink" href="#nadam-adding-nag-to-adam" title="Permalink to this heading">#</a></h1>
+<p>Refer the section Nadam in the book for the detailed explanation. The update equation of Nadam is given as:</p>
+<p>First moment estimate:
+$<span class="math notranslate nohighlight">\(m_{t}=\beta_{1} m_{t-1}+\left(1-\beta_{1}\right) g_{t} -- (33) \)</span>$</p>
+<p>Second moment estimate:
+$<span class="math notranslate nohighlight">\(v_{t}=\beta_{2} v_{t-1}+\left(1-\beta_{2}\right) g_{t}^{2} -- (34) \)</span>$</p>
+<p>Bias-corrected mt:
+$<span class="math notranslate nohighlight">\(\hat{m}_{t}=\frac{m_{t}}{1-\prod_{i=1}^{t+1} \beta_{1}^{i}} -- (35) \)</span>$</p>
+<p>Bias-corrected gt:
+$<span class="math notranslate nohighlight">\(\hat{g}_{t}=\frac{g_{t}}{1-\prod_{i=1}^{t} \beta_{1}^{i}} -- (36) \)</span>$</p>
+<p>Bias-corrected vt:
+$<span class="math notranslate nohighlight">\( \hat{v}_{t}=\frac{v_{t}}{1-\beta_{2}^{t}} -- (37) \)</span>$</p>
+<p>Compute m tilde:
+$<span class="math notranslate nohighlight">\( \tilde{m}_{t}=\beta_{1}^{t+1} \hat{m}_{t}+\left(1-\beta_{1}^{t}\right) \hat{g}_{t} -- (38) \)</span>$</p>
+<p>Update theta:
+$<span class="math notranslate nohighlight">\( \theta_{t}=\theta_{t-1}-\frac{\eta}{\sqrt{v_{t}}+\epsilon} \tilde{m}_{t} -- (39) \)</span>$</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">Nadam</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="n">beta1</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">beta2</span> <span class="o">=</span> <span class="mf">0.999</span><span class="p">,</span> <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">num_iterations</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+   
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">#initialize first moment mt</span>
+    <span class="n">mt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1">#initialize second moment vt</span>
+    <span class="n">vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">theta</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">beta_prod</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iterations</span><span class="p">):</span>
+        
+        <span class="c1">#compute gradients with respect to theta</span>
+        <span class="n">gradients</span> <span class="o">=</span> <span class="n">compute_gradients</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+        
+        <span class="c1">#compute first moment as given in equation (33)</span>
+        <span class="n">mt</span> <span class="o">=</span> <span class="n">beta1</span> <span class="o">*</span> <span class="n">mt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span>
+        
+        <span class="c1">#compute second moment as given in equation (34)</span>
+        <span class="n">vt</span> <span class="o">=</span> <span class="n">beta2</span> <span class="o">*</span> <span class="n">vt</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta2</span><span class="p">)</span> <span class="o">*</span> <span class="n">gradients</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">beta_prod</span> <span class="o">=</span> <span class="n">beta_prod</span> <span class="o">*</span> <span class="p">(</span><span class="n">beta1</span><span class="p">)</span>
+        
+        <span class="c1">#compute bias-corrected estimates of mt as shown in (35)</span>
+        <span class="n">mt_hat</span> <span class="o">=</span> <span class="n">mt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta_prod</span><span class="p">)</span>
+        
+        <span class="c1">#compute bias-corrected estimate of gt as shown in (36)</span>
+        <span class="n">g_hat</span> <span class="o">=</span> <span class="n">gradients</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta_prod</span><span class="p">)</span>
+        
+        <span class="c1">#compute bias-corrected estimate of vt as shown in (37)</span>
+        <span class="n">vt_hat</span> <span class="o">=</span> <span class="n">vt</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">beta2</span> <span class="o">**</span> <span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        
+        <span class="c1">#compute mt tilde as shown in (38)</span>
+        <span class="n">mt_tilde</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">beta1</span><span class="o">**</span><span class="n">t</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">mt_hat</span> <span class="o">+</span> <span class="p">((</span><span class="n">beta1</span><span class="o">**</span><span class="n">t</span><span class="p">)</span><span class="o">*</span> <span class="n">g_hat</span><span class="p">)</span>
+        
+        <span class="c1">#update theta as given in (39)</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span> <span class="o">-</span> <span class="p">(</span><span class="n">lr</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">vt_hat</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">))</span> <span class="o">*</span> <span class="n">mt_hat</span>
+        
+        <span class="c1">#store the loss</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss_function</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">theta</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">loss</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Update model parameter using AMSGrad and compute loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">Nadam</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot the loss:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Nadam&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Training Iterations&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0, 0.5, &#39;Cost&#39;)
+</pre></div>
+</div>
+<img alt="../_images/a6fbfccd9e4b7cbf7e88ecd6233b6449fd1895e70ff96c1e278f1d878e82feca.png" src="../_images/a6fbfccd9e4b7cbf7e88ecd6233b6449fd1895e70ff96c1e278f1d878e82feca.png" />
+</div>
+</div>
+<p>Now that we have learned several variants of gradient descent in the next chapter we will learn about one of the most popularly used deep learning algorithms called Recurrent Neural Network(RNN) which is widely used for the language tasks.</p>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./Autoencoders"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="Gradiente.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Autoencoders VI: Gradiente descendiente</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../Radio/GNU.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">GNU Radio</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Autoencoders VIII: Variantes de Gradiente Descendiente</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#import-the-libraries">Import the Libraries</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-the-dataset">Prepare the dataset</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-function">Loss Function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#gradients-of-loss-function">Gradients of Loss Function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#update-rule">Update Rule</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#minibatch-gradient-descent">MiniBatch Gradient Descent</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-descent-with-momentum">Gradient descent with Momentum</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nesterov-accelerated-gradients">Nesterov Accelerated Gradients</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#set-learning-rate-adaptively-using-adagrad">Set Learning rate adaptively using AdaGrad</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#do-away-with-learning-rate-using-adadelta">Do away with Learning rate using Adadelta</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#overcoming-limitations-of-adagrad-using-rmsprop">Overcoming limitations of AdaGrad using RMSProp</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adam-adaptive-moment-estimation">Adam - Adaptive Moment Estimation</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adamax-adam-based-on-infinity-norm">Adamax - Adam based on infinity norm</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#adaptive-moment-estimation-with-amsgrad">Adaptive Moment Estimation with AMSGrad</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#nadam-adding-nag-to-adam">Nadam - Adding NAG to ADAM</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Grupo de control y procesamiento digital de señales
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

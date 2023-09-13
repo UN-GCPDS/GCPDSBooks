@@ -1,0 +1,725 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Autoencoders IV: Funciones de activación &#8212; GCPDS</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'Autoencoders/Activation';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Autoencoders V: Red Neuronal desde 0" href="Pedal.html" />
+    <link rel="prev" title="Autoencoders III: Señales" href="ConvolucionesSe%C3%B1ales.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/blob.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/blob.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Bienvenido a la Wiki del GCPDS Unal Manizales
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="intro.html">Autoencoders</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Convoluciones.html">Autoencoder I: ¿Convoluciones?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Convoluciones2D.html">Autoencoders II: Convolución 2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ConvolucionesSe%C3%B1ales.html">Autoencoders III: Señales</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Autoencoders IV: Funciones de activación</a></li>
+
+
+
+
+
+
+
+<li class="toctree-l2"><a class="reference internal" href="Pedal.html">Autoencoders V: Red Neuronal desde 0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Gradiente.html">Autoencoders VI: Gradiente descendiente</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Gradiente3.html">Autoencoders VIII: Variantes de Gradiente Descendiente</a></li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../Radio/GNU.html">GNU Radio</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Radio/rff.html">Random Fourier features</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/UN-GCPDS/GCPDSBooks" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/UN-GCPDS/GCPDSBooks/issues/new?title=Issue%20on%20page%20%2FAutoencoders/Activation.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/Autoencoders/Activation.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Autoencoders IV: Funciones de activación</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Autoencoders IV: Funciones de activación</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-sigmoid-function">The sigmoid function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tanh-function">The tanh function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-rectified-linear-unit-function">The Rectified Linear Unit function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-leaky-relu-function">The leaky ReLU function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-exponential-linear-unit-function">The Exponential linear unit function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-swish-function">The Swish function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-softmax-function">The softmax function</a></li>
+</ul>
+
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="autoencoders-iv-funciones-de-activacion">
+<h1>Autoencoders IV: Funciones de activación<a class="headerlink" href="#autoencoders-iv-funciones-de-activacion" title="Permalink to this heading">#</a></h1>
+<p>An activation function, also known as a transfer function, plays a vital role in neural
+networks. It is used to introduce non-linearity in neural networks. As we learned before, we
+apply the activation function to the input, which is multiplied by weights and added to the
+bias, that is, <span class="math notranslate nohighlight">\(f(z)\)</span> , where z = (input * weights) + bias and <span class="math notranslate nohighlight">\(f(\cdot)\)</span> is the activation function. If we do
+not apply the activation function, then a neuron simply resembles the linear regression. The
+aim of the activation function is to introduce a non-linear transformation to learn the
+complex underlying patterns in the data.</p>
+<p>Now let’s look at some of the interesting commonly used activation functions.</p>
+</section>
+<section id="the-sigmoid-function">
+<h1>The sigmoid function<a class="headerlink" href="#the-sigmoid-function" title="Permalink to this heading">#</a></h1>
+<p>The sigmoid function is one of the most commonly used activation functions. It scales the
+value between 0 and 1. The sigmoid function can be defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\frac{1}{1+e^{-x}}\]</div>
+<p>It is an S-shaped curve as shown below:</p>
+<p><img alt="images" src="../_images/6.png" /></p>
+<p>It is differentiable, meaning that we can find the slope of the curve at any two points. It is
+monotonic, which implies it is either entirely non-increasing or non-decreasing. The
+sigmoid function is also known as a logistic function. As we know that probability lies
+between 0 and 1 and since the sigmoid function squashes the value between 0 and 1, it is
+used for predicting the probability of output.
+The sigmoid function can be defined in python as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-tanh-function">
+<h1>The tanh function<a class="headerlink" href="#the-tanh-function" title="Permalink to this heading">#</a></h1>
+<p>A hyperbolic tangent (tanh) function outputs the value between -1 to +1 and is expressed
+as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=\frac{1-e^{-2 x}}{1+e^{-2 x}} \]</div>
+<p>It also resembles the S-shaped curve. Unlike a sigmoid function which is centered on 0.5,
+the tanh function is 0 centered, as shown in the following diagram:</p>
+<p><img alt="images" src="../_images/7.png" /></p>
+<p>Similar to the sigmoid function, it is also a differentiable and monotonic function. The tanh
+function is implemented as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">tanh</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">numerator</span><span class="o">/</span><span class="n">denominator</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-rectified-linear-unit-function">
+<h1>The Rectified Linear Unit function<a class="headerlink" href="#the-rectified-linear-unit-function" title="Permalink to this heading">#</a></h1>
+<p>The Rectified Linear Unit (ReLU) function is another one of the most commonly used
+activation functions. It outputs a value from o to infinity. It is basically a piecewise function
+and can be expressed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} f(x)=\left\{\begin{array}{ll}{0} &amp; {\text { for } x&lt;0} \\ {x} &amp; {\text { for } x \geq 0}\end{array}\right.\end{split}\]</div>
+<p>That is, <span class="math notranslate nohighlight">\(f(x)\)</span> returns zero when the value of x is less than zero and <span class="math notranslate nohighlight">\(f(x)\)</span> returns x when the
+value of x is greater than or equal to zero. It can also be expressed as follows:</p>
+<div class="math notranslate nohighlight">
+\[ f(x)=\max (0, x)\]</div>
+<p>The ReLU function is shown in the following figure:</p>
+<p><img alt="images" src="../_images/8.png" /></p>
+<p>As we can see in the preceding diagram, when we feed any negative input to the ReLU
+function, it converts it to zero. The snag for being zero for all negative values is a problem
+called dying ReLU, and a neuron is said to be dead if it always outputs zero. A ReLU
+function can be implemented as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ReLU</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-leaky-relu-function">
+<h1>The leaky ReLU function<a class="headerlink" href="#the-leaky-relu-function" title="Permalink to this heading">#</a></h1>
+<p>Leaky ReLU is a variant of the ReLU function that solves the dying ReLU problem. Instead
+of converting every negative input to zero, it has a small slope for a negative value as
+shown:</p>
+<p><img alt="images" src="../_images/9.png" /></p>
+<p>Leaky ReLU can be expressed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} f(x)=\left\{\begin{array}{ll}{\alpha x} &amp; {\text { for } x&lt;0} \\ {x} &amp; {\text { for } x \geq 0}\end{array}\right.\end{split}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">leakyReLU</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">alpha</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The value  <span class="math notranslate nohighlight">\(\alpha\)</span> of is typically set to 0.01. The leaky ReLU function is implemented as follows:
+Instead of setting some default values to <span class="math notranslate nohighlight">\(\alpha\)</span>, we can send them as a parameter to a neural
+network and make the network learn the optimal value of  <span class="math notranslate nohighlight">\(\alpha\)</span>. Such an activation function
+can be termed as a Parametric ReLU function. We can also set the value of  <span class="math notranslate nohighlight">\(\alpha\)</span> to some
+random value and it is called as Randomized ReLU function.</p>
+</section>
+<section id="the-exponential-linear-unit-function">
+<h1>The Exponential linear unit function<a class="headerlink" href="#the-exponential-linear-unit-function" title="Permalink to this heading">#</a></h1>
+<p>Exponential linear unit (ELU), like Leaky ReLU, has a small slope for negative values. But
+instead of having a straight line, it has a log curve, as shown in the following diagram:</p>
+<p><img alt="images" src="../_images/10.png" /></p>
+<p>It can be expressed as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} f(x)=\left\{\begin{array}{ll}{\alpha\left(e^{x}-1\right)} &amp; {\text { for } x&lt;0} \\ {x} &amp; {\text { for } x \geq 0}\end{array}\right.\end{split}\]</div>
+<p>The ELU function is implemented in python as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">ELU</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">alpha</span><span class="o">*</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-swish-function">
+<h1>The Swish function<a class="headerlink" href="#the-swish-function" title="Permalink to this heading">#</a></h1>
+<p>The Swish function is a recently introduced activation function by Google. Unlike other
+activation functions, which are monotonic, Swish is a non-monotonic function, which
+means it is neither always non-increasing nor non-decreasing. It provides better
+performance than ReLU. It is simple and can be expressed as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=x \sigma(x)\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(\sigma(x)\)</span> is the sigmoid function. The Swish function is shown in the following diagram:</p>
+<p><img alt="images" src="../_images/11.png" /></p>
+<p>We can also reparametrize the Swish function and express it as follows:</p>
+<div class="math notranslate nohighlight">
+\[f(x)=2 x \sigma(\beta x)\]</div>
+<p>When the value of <span class="math notranslate nohighlight">\(\beta\)</span> is 0, then we get the identity function <span class="math notranslate nohighlight">\(f(x) = x\)</span>.
+It becomes a linear function and, when the value of <span class="math notranslate nohighlight">\(\beta\)</span> tends to infinity, then <span class="math notranslate nohighlight">\(f(x)\)</span> becomes
+<span class="math notranslate nohighlight">\( 2max (0, x)\)</span>, which is basically the ReLU function multiplied by some constant value. So, the
+value of <span class="math notranslate nohighlight">\(\beta\)</span> acts as a good interpolation between a linear and a nonlinear function. The swish
+function can be implemented as shown below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">swish</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">beta</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">beta</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-softmax-function">
+<h1>The softmax function<a class="headerlink" href="#the-softmax-function" title="Permalink to this heading">#</a></h1>
+<p>The softmax function is basically the generalization of the sigmoid function. It is usually
+applied to the final layer of the network and while performing multi-class classification
+tasks. It gives the probabilities of each class for being output and thus, the sum of softmax
+values will always equal 1.</p>
+<p>It can be represented as follows:
+$<span class="math notranslate nohighlight">\(f\left(x_{i}\right)=\frac{e^{x_{i}}}{\sum_{j} e^{x_{j}}}\)</span>$</p>
+<p>As shown in the following diagram, the softmax function converts their inputs to
+probabilities:</p>
+<p><img alt="images" src="../_images/12.png" /></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The softmax function can be implemented in python as follows:
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./Autoencoders"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ConvolucionesSe%C3%B1ales.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Autoencoders III: Señales</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="Pedal.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Autoencoders V: Red Neuronal desde 0</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Autoencoders IV: Funciones de activación</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-sigmoid-function">The sigmoid function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tanh-function">The tanh function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-rectified-linear-unit-function">The Rectified Linear Unit function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-leaky-relu-function">The leaky ReLU function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-exponential-linear-unit-function">The Exponential linear unit function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-swish-function">The Swish function</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-softmax-function">The softmax function</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Grupo de control y procesamiento digital de señales
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

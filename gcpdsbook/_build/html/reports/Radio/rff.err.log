@@ -28,7 +28,7 @@ HTML(f'<style>{css_style}</style>')
 ------------------
 
 ----- stderr -----
-/var/folders/m5/mfpj609j2194blycdfg23ssm0000gn/T/ipykernel_16489/563987141.py:5: DeprecationWarning: `set_matplotlib_formats` is deprecated since IPython 7.23, directly use `matplotlib_inline.backend_inline.set_matplotlib_formats()`
+/var/folders/m5/mfpj609j2194blycdfg23ssm0000gn/T/ipykernel_70691/563987141.py:5: DeprecationWarning: `set_matplotlib_formats` is deprecated since IPython 7.23, directly use `matplotlib_inline.backend_inline.set_matplotlib_formats()`
   set_matplotlib_formats('pdf', 'svg')
 ------------------
 

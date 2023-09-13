@@ -8,6 +8,14 @@ chapters:
   sections: 
    - file: Autoencoders/Convoluciones
    - file: Autoencoders/Convoluciones2D
+   - file: Autoencoders/ConvolucionesSeñales
+   - file: Autoencoders/Activation
+   - file: Autoencoders/Pedal
+   - file: Autoencoders/Gradiente
+   - file: Autoencoders/Gradiente2
+   - file: Autoencoders/Gradiente3
+   - file: Autoencoders/Operaciones
+   - file: Autoencoders/Autoencoder
 - file: Radio/GNU
   sections: 
    - file: Radio/rff
